@@ -1,0 +1,40 @@
+requiredWinstVersion >= "4.11.4.3"
+
+DefVar $UninstallProgram$
+DefVar $LogDir$
+DefVar $ProductId$  
+DefVar $ProductName$
+DefVar $MinimumSpace$
+DefVar $SetupFile$
+DefVar $PathToExe$
+DefVar $ExitCode$
+DefVar $RegPathUninstall$
+DefVar $RegId$
+DefVar $MSVersion$
+DefVar $INST_architecture$
+DefVar $INST_SystemType$
+DefVar $CustomPostInstall$
+DefVar $CustomPostDeinstall$
+DefVar $DesktopIcon$
+DefVar $SearchPattern$
+DefStringList $ResultList$
+
+Set $INST_SystemType$   = GetSystemType
+Set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
+Set $MSVersion$	    	= GetMsVersionInfo
+Set $LogDir$ = "%opsiLogDir%"
+
+; ---------------------------------------------------------------
+; - Please edit the following values                             -
+; ----------------------------------------------------------------
+Set $ProductId$		= "dfn_scribus"
+Set $ProductName$       = "Scribus"
+Set $MinimumSpace$	= "150 MB"
+Set $SetupFile$		= "scribus-1.4.5-windows-x64.exe"
+Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+; ----------------------------------------------------------------
+
+setloglevel = 6
+
+include_append "section_sub_check_exitcode.opsiinc"
+include_append "section_sub_search_registry64_uninstall_keys.opsiinc"

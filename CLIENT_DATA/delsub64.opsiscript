@@ -1,0 +1,49 @@
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib gmbh
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/credits/
+
+Set $SearchPattern$ = $ProductName$
+; Parameter: $SearchPattern$ Suchbegriff in Registry
+Sub_search_registry64_uninstall_keys
+; Rückgabewert: $ResultList$ gefundene Einträge
+
+if ( count ($ResultList$) = "0" )
+	comment "No installations of " + $SearchPattern$ + " found in registry"
+else
+	comment "Found at least one installation of " + $SearchPattern$ + " in registry, try to deinstall"
+	
+	for %s% in $ResultList$ do Sub_uninstall_64
+
+	set $DesktopIcon$ = getProductProperty("desktopicon","no")
+	if $DesktopIcon$ = "yes"
+		comment "Delete common desktop icon"
+		Linkfolder_uninstall_desktopicon	
+	endif
+
+	comment "include custom post deinstall file"
+	set $CustomPostDeinstall$ = getProductProperty("custom-post-deinstall","none")
+	if not ($CustomPostDeinstall$ = "none")
+		if FileExists("%ScriptPath%\custom\" + $CustomPostDeinstall$)
+			include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
+		endif
+	endif
+endif
+
+[Sub_uninstall_64]
+Set $UninstallProgram$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\%s%] UninstallString")
+
+Message "Uninstalling " + $ProductId$
+Winbatch_uninstall
+sub_check_exitcode
+
+
+[Winbatch_uninstall]
+; === Nullsoft Scriptable Install System ================================================================
+ "$UninstallProgram$" /S
+
+[Linkfolder_uninstall_desktopicon]
+set_basefolder common_desktopdirectory
+set_subfolder ""
+delete_element $ProductName$
+
