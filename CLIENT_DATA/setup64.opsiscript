@@ -41,11 +41,11 @@ else
 		else
 			comment "Successful Installation"
 
+			Set $RegId$ = takeSTring(0, $ResultList$)			
+			Set $PathToExe$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] DisplayIcon")
+
 			comment "delete the automatically generated desktopicon (named with version)"
 			Linkfolder_uninstall_desktopicon
-
-			Set $RegId$ = takeSTring(0, $ResultList$)			
-			Set $PathToExe$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] DisplayIcon")			
 
 			set $DesktopIcon$ = getProductProperty("desktopicon","no")
 			if $DesktopIcon$ = "yes"
