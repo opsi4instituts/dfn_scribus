@@ -1,5 +1,5 @@
 [Package]
-version: 1
+version: 2
 depends: 
 incremental: False
 
@@ -64,10 +64,18 @@ values: ["none", "post-deinstall.opsiinc"]
 default: ["none"]
 
 [Changelog]
+dfn_scribus (1.4.5-2)
+	* Umstrukturierung setup/delsub
+	* Check auf 64bit in delsub
+	* $ProductId$ in den OPSI-Skripten gleichgezogen wie in 'control'
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 16.07.2015
+
 dfn_scribus (1.4.5-1)
-	* initial DFN-Paket-Version
+	* initiale DFN-Paket-Version
 	* nur 64-Bit-Version
  -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 14.07.2015
+
+
 
 
 

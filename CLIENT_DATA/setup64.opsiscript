@@ -40,8 +40,19 @@ else
 			isFatalError
 		else
 			comment "Successful Installation"
-			for %s% in $ResultList$ do Sub_get_pathtoexe_from_registry_64
-		
+
+			comment "delete the automatically generated desktopicon (named with version)"
+			Linkfolder_uninstall_desktopicon
+
+			Set $RegId$ = takeSTring(0, $ResultList$)			
+			Set $PathToExe$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] DisplayIcon")			
+
+			set $DesktopIcon$ = getProductProperty("desktopicon","no")
+			if $DesktopIcon$ = "yes"
+				comment "Create common desktop icon"
+				Linkfolder_install_desktopicon 
+			endif
+
 			comment "include custom post install file"
 			set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
 			if not ($CustomPostInstall$ = "none")
@@ -56,19 +67,18 @@ else
 	endif	
 endif
 
-[Sub_get_pathtoexe_from_registry_64]
-Set $RegId$ = "%s%"
-Set $PathToExe$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] DisplayIcon")
-
-set $DesktopIcon$ = getProductProperty("desktopicon","no")
-if $DesktopIcon$ = "no"
-	comment "delete the automatically appearing desktopicon"
-	Linkfolder_uninstall_desktopicon
-endif
-
 [Winbatch_install]
 ; === Nullsoft Scriptable Install System ================================================================
 "%ScriptPath%\$SetupFile$" /S
+
+[Linkfolder_install_desktopicon]
+set_basefolder common_desktopdirectory
+set_subfolder ""
+
+set_link
+ 	name: $ProductName$
+ 	target: $PathToExe$
+end_link
 
 [Linkfolder_uninstall_desktopicon]
 set_basefolder common_desktopdirectory
