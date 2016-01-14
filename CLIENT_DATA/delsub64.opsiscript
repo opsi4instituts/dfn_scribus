@@ -3,49 +3,42 @@
 ; and published under the Terms of the General Public License.
 ; credits: http://www.opsi.org/credits/
 
-if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
-	if not ($MSVersion$ = "6.1")
-		Logwarning "Only tested with windows 7! Please report to the maintainer successful installation on other windows versions."
-	endif
+Message "Searching installation of " + $ProductName$ + " 64 Bit..."
+Set $SearchPattern$ = $ProductName$
+; Parameter: $SearchPattern$ Suchbegriff in Registry
+Sub_search_registry64_uninstall_keys
+; Rückgabewert: $ResultList$ gefundene Einträge
 
-	Message "Searching installation of " + $ProductName$ + " 64 Bit..."
-	Set $SearchPattern$ = $ProductName$
-	; Parameter: $SearchPattern$ Suchbegriff in Registry
-	Sub_search_registry64_uninstall_keys
-	; Rückgabewert: $ResultList$ gefundene Einträge
-
-	if ( count ($ResultList$) = "0" )
-		comment "No installations of " + $SearchPattern$ + " found in registry. Nothing to do ;-) "
-	else
-		if (count($ResultList$) = "1")
-			Message "Uninstalling " + $ProductName$ + " 64 Bit..."
-			Set $RegId$ = takeSTring(0, $ResultList$)
-			Set $UninstallProgram$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] UninstallString")
-			Winbatch_uninstall
-			sub_check_exitcode
+Switch count ($ResultList$)
+	Case "0"
+        		comment "No installations of " + $SearchPattern$ + " found in $RegPathUninstall$. Nothing to do ;-)"
+        	EndCase
+        	Case "1"
+        		Message "Uninstalling " + $ProductName$ + " 64 Bit..."
+		Set $RegId$ = takeSTring(0, $ResultList$)
+		Set $UninstallProgram$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] UninstallString")
+		Winbatch_uninstall
+		sub_check_exitcode
 			
-			set $DesktopIcon$ = getProductProperty("desktopicon","no")
-			if $DesktopIcon$ = "yes"
-				comment "Delete common desktop icon"
-				Linkfolder_uninstall_desktopicon	
-			endif
-
-			comment "include custom post deinstall file"
-			set $CustomPostDeinstall$ = getProductProperty("custom-post-deinstall","none")
-			if not ($CustomPostDeinstall$ = "none")
-				if FileExists("%ScriptPath%\custom\" + $CustomPostDeinstall$)
-					include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
-				endif
-			endif
-		else
-			logError "Found more than one installation! This case is not intended yet in this script! Stop now."
-			isFatalError
+		set $DesktopIcon$ = getProductProperty("desktopicon","no")
+		if $DesktopIcon$ = "yes"
+			comment "Delete common desktop icon"
+			Linkfolder_uninstall_desktopicon	
 		endif
-	endif
-else
-	LogError "At the moment a 32 bit version is not included in this packet!"
-	isFatalError
-endif
+
+		comment "include custom post deinstall file"
+		set $CustomPostDeinstall$ = getProductProperty("custom-post-deinstall","none")
+		if not ($CustomPostDeinstall$ = "none")
+			if FileExists("%ScriptPath%\custom\" + $CustomPostDeinstall$)
+				include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
+			endif
+		endif
+	EndCase
+	DefaultCase
+		logError "Found more than one installation! This case is not intended yet in this script! Stop now."
+		isFatalError
+	EndCase
+EndSwitch
 
 [Winbatch_uninstall]
 ; === Nullsoft Scriptable Install System ================================================================

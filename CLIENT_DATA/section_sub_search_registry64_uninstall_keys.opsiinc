@@ -15,5 +15,5 @@ endif
 
 [execWith_registry64_query]
 @echo off
-reg query "$RegPathUninstall$" /s /f $SearchPattern$
+reg query "$RegPathUninstall$" /s /f "$SearchPattern$"
 

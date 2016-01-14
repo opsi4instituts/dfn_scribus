@@ -1,5 +1,5 @@
 [Package]
-version: 2
+version: 3
 depends: 
 incremental: False
 
@@ -9,7 +9,7 @@ id: dfn_scribus
 name: Scribus
 description: Seitenlayoutprogramm (Desktop-Publishing, DTP) zur flexiblen Gestaltung von Dokumenten (Text, Bilder und Vektoren) und für professionelle Druckausgabe (u.a. PDF/X-3, CMYK, Farbmanagament)
 advice: 
-version: 1.4.5
+version: 1.4.6
 priority: 0
 licenseRequired: False
 productClasses: 
@@ -64,6 +64,12 @@ values: ["none", "post-deinstall.opsiinc"]
 default: ["none"]
 
 [Changelog]
+dfn_scribus (1.4.6-3)
+	* Update Upstream
+	* kleinere Umstellungen
+	* Logo hinzugefügt
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 14.01.2016
+
 dfn_scribus (1.4.5-2)
 	* Umstrukturierung setup/delsub
 	* Check auf 64bit in delsub
@@ -74,6 +80,9 @@ dfn_scribus (1.4.5-1)
 	* initiale DFN-Paket-Version
 	* nur 64-Bit-Version
  -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 14.07.2015
+
+
+
 
 
 

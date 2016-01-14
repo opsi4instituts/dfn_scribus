@@ -7,6 +7,9 @@
 ; common Values for (un)installation
 include_insert "common.opsiinc"
 
+comment "Show product picture"
+ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $ProductName$
+
 Message "Uninstalling " + $ProductName$ + " ..."
 
 if FileExists("%ScriptPath%\delsub64.opsiscript")

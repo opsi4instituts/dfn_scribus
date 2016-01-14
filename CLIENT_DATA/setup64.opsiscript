@@ -12,59 +12,53 @@ if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
 	isFatalError
 	; Stop process and set installation status to failed
 else
+	
+	comment "show product picture"
+	ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $ProductName$ 	
+	
 	if FileExists("%ScriptPath%\delsub64.opsiscript")
 		comment "Start uninstall sub section"
 		Sub "%ScriptPath%\delsub64.opsiscript"
 	endif
 	
+	Message "Installing %installingProdName% (%installingProdVersion%) 64 Bit..."
+	comment "Start setup program"
+	Winbatch_install
+	Sub_check_exitcode
+		
+	comment "Test for installation success"
 	
-	if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
-		if not ($MSVersion$ = "6.1")
-			Logwarning "Only tested with windows 7! Please report to the maintainer successful installation on other windows versions."
-		endif
+	Set $SearchPattern$ = $ProductName$
+	; Parameter: $SearchPattern$ Suchbegriff in Registry
+	Sub_search_registry64_uninstall_keys
+	; Rückgabewert: $ResultList$ gefundene Einträge
 
-		Message "Installing " + $ProductName$ + " 64 Bit..."
-		comment "Start setup program"
-		Winbatch_install
-		Sub_check_exitcode
-		
-		comment "Test for installation success"
-		
-		Set $SearchPattern$ = $ProductName$
-		; Parameter: $SearchPattern$ Suchbegriff in Registry
-		Sub_search_registry64_uninstall_keys
-		; Rückgabewert: $ResultList$ gefundene Einträge
-
-		if ( count ($ResultList$) = "0" )
-			logError "Fatal: After Installation " + $ProductName$ + " could not be found in " + $RegPathUninstall$
-			isFatalError
-		else
-			comment "Successful Installation"
-
-			Set $RegId$ = takeSTring(0, $ResultList$)			
-			Set $PathToExe$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] DisplayIcon")
-
-			comment "delete the automatically generated desktopicon (named with version)"
-			Linkfolder_uninstall_desktopicon
-
-			set $DesktopIcon$ = getProductProperty("desktopicon","no")
-			if $DesktopIcon$ = "yes"
-				comment "Create common desktop icon"
-				Linkfolder_install_desktopicon 
-			endif
-
-			comment "include custom post install file"
-			set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
-			if not ($CustomPostInstall$ = "none")
-				if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
-					include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
-				endif
-			endif
-		endif
-	else
-		LogError "At the moment a 32 bit version is not included in this packet!"
+	if ( count ($ResultList$) = "0" )
+		logError "Fatal: After Installation " + $ProductName$ + " could not be found in " + $RegPathUninstall$
 		isFatalError
-	endif	
+	else
+		comment "Successful Installation"
+
+		Set $RegId$ = takeSTring(0, $ResultList$)			
+		Set $PathToExe$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] DisplayIcon")
+
+		comment "delete the automatically generated desktopicon (named with version)"
+		Linkfolder_uninstall_desktopicon
+
+		set $DesktopIcon$ = getProductProperty("desktopicon","no")
+		if $DesktopIcon$ = "yes"
+			comment "Create common desktop icon"
+			Linkfolder_install_desktopicon 
+		endif
+
+		comment "include custom post install file"
+		set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
+		if not ($CustomPostInstall$ = "none")
+			if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
+				include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
+			endif
+		endif
+	endif
 endif
 
 [Winbatch_install]
