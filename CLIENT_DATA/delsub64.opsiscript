@@ -1,8 +1,3 @@
-; Copyright (c) uib gmbh (www.uib.de)
-; This sourcecode is owned by uib gmbh
-; and published under the Terms of the General Public License.
-; credits: http://www.opsi.org/credits/
-
 Message "Searching installation of " + $ProductName$ + " 64 Bit..."
 Set $SearchPattern$ = $ProductName$
 ; Parameter: $SearchPattern$ Suchbegriff in Registry
@@ -11,19 +6,18 @@ Sub_search_registry64_uninstall_keys
 
 Switch count ($ResultList$)
 	Case "0"
-        		comment "No installations of " + $SearchPattern$ + " found in $RegPathUninstall$. Nothing to do ;-)"
-        	EndCase
-        	Case "1"
-        		Message "Uninstalling " + $ProductName$ + " 64 Bit..."
+		comment "No installations of " + $SearchPattern$ + " found in $RegPathUninstall$. Nothing to do ;-)"
+    EndCase
+    Case "1"
+    	Message "Uninstalling " + $ProductName$ + " 64 Bit..."
 		Set $RegId$ = takeSTring(0, $ResultList$)
 		Set $UninstallProgram$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] UninstallString")
 		Winbatch_uninstall
 		sub_check_exitcode
-			
-		set $DesktopIcon$ = getProductProperty("desktopicon","no")
-		if $DesktopIcon$ = "yes"
-			comment "Delete common desktop icon"
-			Linkfolder_uninstall_desktopicon	
+
+		if $DesktopLink$ = "true"
+			comment "Delete common desktop link"
+			Linkfolder_delete_desktoplink	
 		endif
 
 		comment "include custom post deinstall file"
@@ -42,9 +36,9 @@ EndSwitch
 
 [Winbatch_uninstall]
 ; === Nullsoft Scriptable Install System ================================================================
- "$UninstallProgram$" /S
+"$UninstallProgram$" /S
 
-[Linkfolder_uninstall_desktopicon]
+[Linkfolder_delete_desktoplink]
 set_basefolder common_desktopdirectory
 set_subfolder ""
 delete_element $ProductName$

@@ -4,6 +4,7 @@ DefVar $UninstallProgram$
 DefVar $LogDir$
 DefVar $ProductId$  
 DefVar $ProductName$
+DefVar $ProductVersion$
 DefVar $MinimumSpace$
 DefVar $SetupFile$
 DefVar $PathToExe$
@@ -11,26 +12,26 @@ DefVar $ExitCode$
 DefVar $RegPathUninstall$
 DefVar $RegId$
 DefVar $MSVersion$
-DefVar $INST_architecture$
 DefVar $INST_SystemType$
 DefVar $CustomPostInstall$
 DefVar $CustomPostDeinstall$
-DefVar $DesktopIcon$
+DefVar $DesktopLink$
 DefVar $SearchPattern$
 DefStringList $ResultList$
 
 Set $INST_SystemType$   = GetSystemType
-Set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
 Set $MSVersion$	= GetMsVersionInfo
 Set $LogDir$ = "%opsiLogDir%"
+Set $ProductVersion$ = takestring (0, splitString("%installingProdVersion%", "-"))
+Set $DesktopLink$ = getProductProperty("desktop-link","false")
 
 ; ---------------------------------------------------------------
 ; - Please edit the following values                             -
 ; ----------------------------------------------------------------
-Set $ProductId$	= "scribus"
-Set $ProductName$       = "Scribus"
-Set $MinimumSpace$	= "150 MB"
-Set $SetupFile$		= "scribus-1.4.6-windows-x64.exe"
+Set $ProductId$		= "scribus"
+Set $ProductName$   = "Scribus"
+Set $MinimumSpace$	= "230 MB"
+Set $SetupFile$		= "scribus-" + $ProductVersion$ + "-windows-x64.exe"
 Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 ; ----------------------------------------------------------------
 
@@ -43,6 +44,15 @@ if not ($MSVersion$ = "6.1" OR $MSVersion$ = "10.0")
 	Logwarning "Only tested with windows 7 and 10! Please report to the maintainer successful installation on other windows versions."		
 endif
 if not ($INST_SystemType$ = "64 Bit System")
-	LogError "At the moment a 32 bit version is not included in this packet!"
+	LogError "At the moment a 32 bit version is not included in this package!"
 	isFatalError
+endif
+
+comment "Show product picture"
+if (FileExists("%ScriptPath%\..\lib\icons\%installingProdName%.png"))
+       comment "logo at local library/icons found."
+       ShowBitmap "%ScriptPath%\..\lib\icons\%installingProdName%.png" $ProductName$
+else
+       comment "no logo at local library/icons, use from ScriptPath ..."
+       ShowBitmap "%ScriptPath%\o4i.png" $ProductName$
 endif
