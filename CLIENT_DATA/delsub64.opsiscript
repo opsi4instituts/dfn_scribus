@@ -1,19 +1,25 @@
 Message "Searching installation of " + $ProductName$ + " 64 Bit..."
-Set $SearchPattern$ = $ProductName$
-; Parameter: $SearchPattern$ Suchbegriff in Registry
-Sub_search_registry64_uninstall_keys
-; Rückgabewert: $ResultList$ gefundene Einträge
+
+; Ergebnis ist StringList (mehrere Einträge möglich);
+; in einer Zeile werden drei Ergebnisse mit "|" abgetrennt geliefert: Registrykey (mit Pfad) | Bereich Registry (kann direkt getRegistryValue übergeben werden | DisplayName
+; z.B. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Test64|64bit|Test Registry Entry64
+Set $ResultList$ = SearchRegistryUninstallKeys($ProductName$)
 
 Switch count ($ResultList$)
 	Case "0"
-		comment "No installations of " + $SearchPattern$ + " found in $RegPathUninstall$. Nothing to do ;-)"
+		comment "No installations of " + $ProductName$ + " found in registry. Nothing to do ;-)"
     EndCase
     Case "1"
     	Message "Uninstalling " + $ProductName$ + " 64 Bit..."
-		Set $RegId$ = takeSTring(0, $ResultList$)
-		Set $UninstallProgram$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] UninstallString")
+		Set $RegId$ = takeString (0,splitString(takeString(0,$ResultList$), '|'))
+		Set $RegBitScope$ = takeString (1,splitString(takeString(0,$ResultList$), '|'))
+
+		Set $UninstallProgram$ = GetRegistryValue($RegId$, "UninstallString",$RegBitScope$)
 		Winbatch_uninstall
-		sub_check_exitcode
+		Set $ExitCode$ = getLastExitCode
+		if stringToBool(isNsisExitcodeFatal($ExitCode$, "True", $ErrorString$))
+			isFatalError
+		endif
 
 		if $DesktopLink$ = "true"
 			comment "Delete common desktop link"

@@ -1,23 +1,27 @@
-requiredWinstVersion >= "4.11.4.3"
+requiredWinstVersion >= "4.12.0.16"
 
-DefVar $UninstallProgram$
 DefVar $LogDir$
-DefVar $ProductId$  
-DefVar $ProductName$
-DefVar $ProductVersion$
+DefVar $ProductId$
 DefVar $MinimumSpace$
-DefVar $SetupFile$
-DefVar $PathToExe$
+DefVar $InstallDir$
+DefVar $InstFile$
 DefVar $ExitCode$
-DefVar $RegPathUninstall$
-DefVar $RegId$
-DefVar $MSVersion$
-DefVar $INST_SystemType$
+DefVar $ErrorString$
 DefVar $CustomPostInstall$
 DefVar $CustomPostDeinstall$
 DefVar $DesktopLink$
-DefVar $SearchPattern$
-DefStringList $ResultList$
+DefVar $ProductName$
+DefVar $PathToExe$
+DefVar $ProductVersion$
+DefVar $InstalledVersion$
+DefVar $INST_SystemType$
+DefVar $MSVersion$
+DefVar $RegId$
+DefVar $RegBitScope$
+DefVar $RegKeyName$
+DefVar $SilentOption$
+DefStringlist $ResultList$
+DefVar $UninstallProgram$
 
 Set $INST_SystemType$   = GetSystemType
 Set $MSVersion$	= GetMsVersionInfo
@@ -31,14 +35,13 @@ Set $DesktopLink$ = getProductProperty("desktop-link","false")
 Set $ProductId$		= "scribus"
 Set $ProductName$   = "Scribus"
 Set $MinimumSpace$	= "230 MB"
-Set $SetupFile$		= "scribus-" + $ProductVersion$ + "-windows-x64.exe"
-Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+Set $InstFile$		= "scribus-" + $ProductVersion$ + "-windows-x64.exe"
 ; ----------------------------------------------------------------
 
-setloglevel = 6
-
-include_append "section_sub_check_exitcode.opsiinc"
-include_append "section_sub_search_registry64_uninstall_keys.opsiinc"
+; exitcode library von UIB (siehe C:\program files(x86)\opsi.org\opsi-client-agent\opsi-winst\lib) mit 'local functions'
+importLib "uib_exitcode.opsiscript::isNsisExitcodeFatal"
+; Library registry search uninstall keys (local functions)
+importLib "func_search_registry_uninstall_keys.opsiinc"
 
 if not ($MSVersion$ = "6.1" OR $MSVersion$ = "10.0")
 	Logwarning "Only tested with windows 7 and 10! Please report to the maintainer successful installation on other windows versions."		

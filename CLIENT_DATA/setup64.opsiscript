@@ -15,24 +15,38 @@ else
 	Message "Installing %installingProdName% (%installingProdVersion%) 64 Bit..."
 	comment "Start setup program"
 	Winbatch_install
-	Sub_check_exitcode
+	Set $ExitCode$ = getLastExitCode 
+	if stringToBool(isNsisExitcodeFatal($ExitCode$, "True", $ErrorString$))
+		isFatalError
+	endif
 		
 	comment "Test for installation success"
-	
-	Set $SearchPattern$ = $ProductName$
-	; Parameter: $SearchPattern$ Suchbegriff in Registry
-	Sub_search_registry64_uninstall_keys
-	; Rückgabewert: $ResultList$ gefundene Einträge
+	; Ergebnis ist StringList (mehrere Einträge möglich);
+	; in einer Zeile werden drei Ergebnisse mit "|" abgetrennt geliefert: Registrykey (mit Pfad) | Bereich Registry (kann direkt getRegistryValue übergeben werden | DisplayName
+	; z.B. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Test64|64bit|Test Registry Entry64
+	Set $ResultList$ = SearchRegistryUninstallKeys($ProductName$)
 
 	if ( count ($ResultList$) = "0" )
 		logError "Fatal: After Installation " + $ProductName$ + " could not be found in " + $RegPathUninstall$
 		isFatalError
 	else
 		comment "Successful Installation"
-
-		Set $RegId$ = takeSTring(0, $ResultList$)			
-		Set $PathToExe$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] DisplayIcon")
-
+		Set $RegId$ = takeString (0,splitString(takeString(0,$ResultList$), '|'))
+		Set $RegBitScope$ = takeString (1,splitString(takeString(0,$ResultList$), '|'))
+		; nur den Keyname ohne den Registrypfad, wird für automatisch angelegtes DesktopIcon benötigt
+		Set $RegKeyName$ = takeString (-1,splitString($RegId$,"\"))
+		
+		comment "Check version"
+		Set $InstalledVersion$ = GetRegistryValue($RegId$, "DisplayVersion",$RegBitScope$)
+		if not (contains($InstalledVersion$, $ProductVersion$))
+			LogError "Wrong version number found, something went wrong."
+			isFatalError
+		endif
+		
+		comment "Get 'InstallLocation' from registry for path to exe"
+		Set $PathToExe$ = GetRegistryValue($RegId$, "DisplayIcon",$RegBitScope$)
+		Set $InstallDir$ =takeString(-1, splitString($PathToExe$, '\'))
+		
 		comment "delete the automatically generated desktopicon (named with version)"
 		Linkfolder_delete_desktopicon
 
@@ -53,7 +67,7 @@ endif
 
 [Winbatch_install]
 ; === Nullsoft Scriptable Install System ================================================================
-"%ScriptPath%\$SetupFile$" /S
+"%ScriptPath%\$InstFile$" /S
 
 [Linkfolder_create_desktoplink]
 set_basefolder common_desktopdirectory
@@ -67,5 +81,5 @@ end_link
 [Linkfolder_delete_desktopicon]
 set_basefolder common_desktopdirectory
 set_subfolder ""
-delete_element $RegId$
+delete_element $RegKeyName$
 

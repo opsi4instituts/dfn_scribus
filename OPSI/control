@@ -1,7 +1,6 @@
 [Package]
-version: 1
+version: 2
 depends: 
-incremental: False
 
 [Product]
 type: localboot
@@ -52,6 +51,13 @@ values: ["none", "post-deinstall.opsiinc"]
 default: ["none"]
 
 [Changelog]
+dfn_scribus (1.4.7-2)
+	* neues o4i-Logo
+	* neue Registrysuche (https://github.com/opsi4instituts/lib, winst-Version 4.12.0.16 Voraussetzung)
+	* Verwendung uib_exitcode (local function)
+	* Check Version (Paket <-> Installation)
+-- David Dams (archIT/KIT) <david.dams9@kit.edu>, 07.01.2019
+
 dfn_scribus (1.4.7-1)
 	* Neue Upstreamversion (https://www.scribus.net/scribus-1-4-7-and-1-5-4-released/)
 	* install_architecture entfernt, da nur 64-Bit-Version enthalten
